@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+if [ "$#" != 0 ] && [ "$1" == "--no-build" ]; then
+  shift
+else
+  (cd "${0%/*}"; npm run build)
+fi
+
+node "${0%/*}"/lib/src/main.js "$@"
