@@ -98,7 +98,7 @@ yargs
         },
       })
       .options({
-        "runner": {
+        "auto_run_ffmpeg": {
           choices: [true] as const,
           nargs: 0,
         },
@@ -133,7 +133,7 @@ yargs
             console.log("Missing interface handler", exhaustiveCheck);
         }
       } else {
-        Example.main(example.main, args.runner ? iface : undefined);
+        Example.main(example.main, args.auto_run_ffmpeg ? iface : undefined);
       }
     },
   }).help().argv;
@@ -146,7 +146,7 @@ type ExampleModule = {
 type RunArguments = {
   [x: string]: unknown;
   interface?: "json" | "ffmpeg" | "ports" | "urls" | "description" | undefined;
-  runner?: boolean;
+  auto_run_ffmpeg?: boolean;
   example: string;
   _: (string | number)[];
   $0: string;

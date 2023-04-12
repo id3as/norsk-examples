@@ -86,6 +86,7 @@ export async function main() {
   let mixerSettings: AudioMixerSettings<"source" | "comms"> = {
     id: "mixer",
     onError: (err) => console.log("MIXER ERR", err),
+    sampleRate: 48000,
     sources: [{ pin: "source" }
       , { pin: "comms" }
     ],
@@ -98,54 +99,54 @@ export async function main() {
   ]);
 
   let finalLadder: VideoEncodeLadderRung[] = [
-      {
-        name: "high",
-        width: 1280,
-        height: 720,
-        frameRate: { frames: 25, seconds: 1 },
-        codec: {
-          type: "x264",
-          bitrateMode: { value: 8000000, mode: "abr" },
-          keyFrameIntervalMax: 50,
-          keyFrameIntervalMin: 50,
-          bframes: 3,
-          sceneCut: 0,
-          profile: "high",
-          level: 4.1,
-          preset: "veryfast",
-          tune: "zerolatency",
-        },
+    {
+      name: "high",
+      width: 1280,
+      height: 720,
+      frameRate: { frames: 25, seconds: 1 },
+      codec: {
+        type: "x264",
+        bitrateMode: { value: 8000000, mode: "abr" },
+        keyFrameIntervalMax: 50,
+        keyFrameIntervalMin: 50,
+        bframes: 3,
+        sceneCut: 0,
+        profile: "high",
+        level: 4.1,
+        preset: "veryfast",
+        tune: "zerolatency",
       },
-      {
-        name: "medium",
-        width: 640,
-        height: 360,
-        frameRate: { frames: 25, seconds: 1 },
-        codec: {
-          type: "x264",
-          bitrateMode: { value: 250000, mode: "abr" },
-          keyFrameIntervalMax: 50,
-          keyFrameIntervalMin: 50,
-          bframes: 0,
-          sceneCut: 0,
-          tune: "zerolatency",
-        },
+    },
+    {
+      name: "medium",
+      width: 640,
+      height: 360,
+      frameRate: { frames: 25, seconds: 1 },
+      codec: {
+        type: "x264",
+        bitrateMode: { value: 250000, mode: "abr" },
+        keyFrameIntervalMax: 50,
+        keyFrameIntervalMin: 50,
+        bframes: 0,
+        sceneCut: 0,
+        tune: "zerolatency",
       },
-      {
-        name: "low",
-        width: 320,
-        height: 180,
-        frameRate: { frames: 25, seconds: 1 },
-        codec: {
-          type: "x264",
-          bitrateMode: { value: 150000, mode: "abr" },
-          keyFrameIntervalMax: 50,
-          keyFrameIntervalMin: 50,
-          bframes: 0,
-          sceneCut: 0,
-          tune: "zerolatency",
-        },
-      }
+    },
+    {
+      name: "low",
+      width: 320,
+      height: 180,
+      frameRate: { frames: 25, seconds: 1 },
+      codec: {
+        type: "x264",
+        bitrateMode: { value: 150000, mode: "abr" },
+        keyFrameIntervalMax: 50,
+        keyFrameIntervalMin: 50,
+        bframes: 0,
+        sceneCut: 0,
+        tune: "zerolatency",
+      },
+    }
   ];
 
   let finalEncode = await norsk.processor.transform.videoEncodeLadder({
@@ -164,10 +165,10 @@ export async function main() {
   };
 
   let masterOutput = await norsk.output.hlsMaster(masterPlaylistSettings);
-  let audioOutput = await norsk.output.hlsAudio({id: "audio", ...mediaSettings});
-  let highOutput = await norsk.output.hlsVideo({id: "high", ...mediaSettings});
-  let mediumOutput = await norsk.output.hlsVideo({id: "medium", ...mediaSettings});
-  let lowOutput = await norsk.output.hlsVideo({id: "low", ...mediaSettings});
+  let audioOutput = await norsk.output.hlsAudio({ id: "audio", ...mediaSettings });
+  let highOutput = await norsk.output.hlsVideo({ id: "high", ...mediaSettings });
+  let mediumOutput = await norsk.output.hlsVideo({ id: "medium", ...mediaSettings });
+  let lowOutput = await norsk.output.hlsVideo({ id: "low", ...mediaSettings });
 
   let ladderItem =
     (desiredRendition: string) => (streams: StreamMetadata[]) => {

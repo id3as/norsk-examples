@@ -96,6 +96,7 @@ export async function main() {
   let mixerSettings: AudioMixerSettings<"input1" | "input2"> = {
     id: "mixer",
     onError: (err) => console.log("MIXER ERR", err),
+    sampleRate: 48000,
     sources: [
       { pin: "input1" },
       { pin: "input2" }
