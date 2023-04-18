@@ -4,7 +4,7 @@ import * as Example from "../interface";
 
 
 export async function main() {
-  const norsk = new Norsk({ url: "localhost:6790" });  
+  const norsk = new Norsk({});  
 
   let input = await norsk.input.rtmpServer({ id: "rtmpInput", port: 5001 }); 
   let output = await norsk.duplex.localWebRTC({ id: "localRtcOutput" }); 

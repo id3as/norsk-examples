@@ -18,10 +18,10 @@ export type Interface = {
 
 export type FfmpegSpec = {
   sources?:
-    string | string[] // raw bash commandline(s)
-    | number // create n sources with default settings
-    | SourceSettings // create a source with specific settings
-    | (SourceSettings | string | undefined)[], // create n sources with specific settings, commandlines, or defaults
+  string | string[] // raw bash commandline(s)
+  | number // create n sources with default settings
+  | SourceSettings // create a source with specific settings
+  | (SourceSettings | string | undefined)[], // create n sources with specific settings, commandlines, or defaults
   encode?: string | string[],
   transport: Transport,
   rendered?: string,
@@ -42,13 +42,13 @@ export type SourceSettings = {
   src?: string
 };
 
-function blankFrame(spec?: { resolution?: [number, number], framesPerSecond?: number}) {
+function blankFrame(spec?: { resolution?: [number, number], framesPerSecond?: number }) {
   if (!spec) spec = {};
   if (!spec.resolution) spec.resolution = [1280, 720];
   if (!spec.framesPerSecond) spec.framesPerSecond = 25;
   return `color=c=black:s=${spec.resolution[0]}x${spec.resolution[1]}:r=${spec.framesPerSecond}`;
 }
-function testCard(spec?: { resolution?: [number, number], framesPerSecond?: number, src?: string}) {
+function testCard(spec?: { resolution?: [number, number], framesPerSecond?: number, src?: string }) {
   if (!spec) spec = {};
   if (!spec.resolution) spec.resolution = [1280, 720];
   if (!spec.framesPerSecond) spec.framesPerSecond = 25;
@@ -70,11 +70,11 @@ function sine(spec?: { channels?: string }) {
 }
 
 function generate(...filters: string[]) {
-  return filters.map((filter, i) => filter+`[out${i}]`).join(";");
+  return filters.map((filter, i) => filter + `[out${i}]`).join(";");
 }
 
 function getDefaultSource(spec?: SourceSettings) {
-  let filters = [ testCard(spec), sine(spec) ];
+  let filters = [testCard(spec), sine(spec)];
   return [
     `-re`, // realtime
     `-f lavfi`, // generate from a filtergraph, not a file
@@ -95,10 +95,10 @@ export type H264Settings = {
 export function singleH264AacEncode({ duration, framesPerSecond, videoBitrate, audioBitrate, resolution: { width, height }, interlaced, audioCodec }: H264Settings) {
   let args = [
     `-vcodec h264`,
-    `-frames:v ${Math.floor(duration) * framesPerSecond}`,
     `-b:v ${videoBitrate}`,
     `-b:a ${audioBitrate}`,
     `-vf scale=${width}:${height}${interlaced ? ",tinterlace=interleave_top,fieldorder=tff -flags +ildct+ilme" : ""}`,
+    `-aspect ${width}:${height}`,
     `-x264opts "keyint=${framesPerSecond}:min-keyint=${framesPerSecond}:no-scenecut:bframes=0${interlaced ? ":interlaced=1" : ""}"`,
     `-bluray-compat true`, // force CFR and some other random things, otherwise ffmpeg always tells libx264 to use VFR
     `-tune stillimage`,
@@ -116,7 +116,7 @@ type RtmpSettings = {
 }
 
 export function rtmpOutput({ port, app, str }: RtmpSettings): Transport {
-  let url = `rtmp://127.0.0.1:${port}/${app}/${str}`;
+  let url = `rtmp://${ffmpegTarget()}:${port}/${app}/${str}`;
   return {
     command: `-f flv '${url}'`,
     ports: [[port, "tcp"]],
@@ -129,7 +129,7 @@ type SrtOutput = {
 }
 
 export function srtOutput({ port }: SrtOutput): Transport {
-  let url = `srt://127.0.0.1:${port}`;
+  let url = `srt://${ffmpegTarget()}:${port}`;
   return {
     command: `-f mpegts -flush_packets 0 '${url}'`,
     ports: [[port, "udp"]],
@@ -142,7 +142,7 @@ type RtpOutput = {
 }
 
 export function rtpOutput({ port }: RtpOutput): Transport {
-  let url = `rtp://127.0.0.1:${port}`;
+  let url = `rtp://${ffmpegTarget()}:${port}`;
   return {
     command: `-f rtp '${url}'`,
     ports: [[port, "udp"]],
@@ -150,8 +150,14 @@ export function rtpOutput({ port }: RtpOutput): Transport {
   };
 }
 
-export function cat(value: string | string[]) {
+function cat(value: string | string[]) {
   return typeof value === 'string' ? value : value.join(" ");
+}
+
+function ffmpegTarget(): string {
+  if (process.env.FFMPEG_TARGET)
+    return process.env.FFMPEG_TARGET;
+  return "127.0.0.1";
 }
 
 export let defaultEncode: H264Settings = {
@@ -169,7 +175,7 @@ export function sourceCommand(sources: FfmpegSpec["sources"]) {
   }
   let source_specs: (SourceSettings | string | undefined)[] = [];
   if (typeof sources === "number") {
-    for (let i=0; i<sources; i++) {
+    for (let i = 0; i < sources; i++) {
       source_specs.push(undefined);
     }
   } else if (!Array.isArray(sources)) {
@@ -211,11 +217,12 @@ export function ffmpegCommand(specOrTransportSpec: FfmpegSpec | Transport): Ffmp
 }
 
 export function ffmpegExecutable(): string {
+  let errorsOnly = " -v error";
   if (process.env.FFMPEG)
-    return process.env.FFMPEG;
+    return process.env.FFMPEG + errorsOnly
   if (process.env.FFMPEG_FULL)
-    return process.env.FFMPEG_FULL+"/bin/ffmpeg -v error";
-  return "ffmpeg -v error";
+    return process.env.FFMPEG_FULL + "/bin/ffmpeg" + errorsOnly;
+  return "ffmpeg" + errorsOnly;
 }
 
 export function render(spec: FfmpegSpec): string {

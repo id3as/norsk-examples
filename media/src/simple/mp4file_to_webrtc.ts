@@ -7,7 +7,7 @@ import * as Example from "../interface";
 export async function main() {
   const fileName = await fs.realpath("./data/mp4_h264_fragmented.mp4");
 
-  const norsk = new Norsk({ url: "localhost:6790" });
+  const norsk = new Norsk({});
 
   let input = await norsk.input.localMp4File({ id: "mp4File", sourceName: "example.mp4", fileName: fileName });
   let output = await norsk.duplex.localWebRTC({ id: "localRtcOutput" });

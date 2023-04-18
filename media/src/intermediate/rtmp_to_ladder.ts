@@ -5,7 +5,6 @@ import * as Example from "../interface";
 
 export async function main(): Promise<void> {
   const norsk = new Norsk({
-    url: "localhost:6790",
     onShutdown: () => {
       console.log("Norsk has shutdown");
       process.exit(1)

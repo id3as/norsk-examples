@@ -59,7 +59,6 @@ export async function main() {
   };
 
   const norsk = new Norsk({
-    url: "localhost:6790",
     onShutdown: () => {
       console.log("Norsk has shutdown");
       process.exit(1)
