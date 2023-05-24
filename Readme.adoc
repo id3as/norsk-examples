@@ -1,0 +1,5 @@
+= Norsk Examples
+
+This repo has moved to https://github.com/norskvideo/media-examples
+
+You can find links to that and other helpful resources by going to https://norsk.video and clicking on "For Developers".

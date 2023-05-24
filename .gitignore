@@ -1,7 +1,0 @@
-.DS_Store
-.npmrc
-/manager/lib
-/media/lib
-package-lock.json
-node_modules
-
